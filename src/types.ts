@@ -43,4 +43,48 @@ export interface QuickNote {
   timestamp: Date;
 }
 
-export type AppTheme = 'neon_rose' | 'midnight_velvet' | 'cyber_lavender' | 'emerald_glow';
+export type EmotionalMode = 'sassy' | 'supportive' | 'professional';
+
+export type AppMode = 'umng' | 'jarvis';
+
+export type AppTheme = 'neon_rose' | 'midnight_velvet' | 'cyber_lavender' | 'emerald_glow' | 'stark_arc';
+
+export interface CreatorSocials {
+  name: string;
+  instagram: { handle: string; url: string };
+  discord: { handle: string; tag: string };
+  youtube: { handle: string; url: string };
+}
+
+export interface CallContact {
+  id: string;
+  name: string;
+  roleOrTitle: string;
+  handleOrNumber: string;
+  category: 'core' | 'avengers' | 'vip' | 'custom';
+  avatarGradient: string;
+  status: 'online' | 'busy' | 'encrypted';
+  isFavorite?: boolean;
+}
+
+export type CallStage = 'idle' | 'dialing' | 'connected' | 'ended';
+
+export interface HolographicCallSession {
+  id: string;
+  contact: CallContact;
+  stage: CallStage;
+  startTime?: Date;
+  durationSeconds: number;
+  isMuted: boolean;
+  isSpeakerOn: boolean;
+  satelliteLatencyMs: number;
+  aiDialogueSnippet?: string;
+}
+
+export interface StarkClearanceState {
+  isGranted: boolean;
+  activeKey: string;
+  clearanceLevel: string;
+  keyLabel: string;
+  grantedAt?: string;
+}

@@ -7,6 +7,8 @@ import {
   ActiveTimer,
   QuickNote,
   AppTheme,
+  EmotionalMode,
+  AppMode,
 } from '../types';
 import {
   floatTo16BitPCM,
@@ -19,9 +21,22 @@ import {
 interface UseLiveVoiceOptions {
   theme: AppTheme;
   setTheme: (theme: AppTheme) => void;
+  emotionalMode: EmotionalMode;
+  setEmotionalMode: (mode: EmotionalMode) => void;
+  appMode: AppMode;
+  setAppMode: (mode: AppMode) => void;
+  onVoiceInitiatedCall?: (contactName: string, reason?: string) => void;
 }
 
-export function useLiveVoice({ setTheme }: UseLiveVoiceOptions) {
+export function useLiveVoice({
+  theme,
+  setTheme,
+  emotionalMode,
+  setEmotionalMode,
+  appMode,
+  setAppMode,
+  onVoiceInitiatedCall,
+}: UseLiveVoiceOptions) {
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
   const [assistantState, setAssistantState] = useState<AssistantState>('idle');
   const [isMuted, setIsMuted] = useState<boolean>(false);
@@ -127,12 +142,21 @@ export function useLiveVoice({ setTheme }: UseLiveVoiceOptions) {
         } catch {
           // Handled via action feed
         }
+      } else if (toolName === 'makeCall') {
+        const contactName = args?.contactName || 'Requested Contact';
+        const reason = args?.reasonOrMessage || '';
+        description = `Initiating holographic call link with ${contactName}...`;
+        setLastActionResult(`Holographic Call: ${contactName}`);
+        playUiSound('call_connect');
+        if (onVoiceInitiatedCall) {
+          onVoiceInitiatedCall(contactName, reason);
+        }
       } else if (toolName === 'triggerAction') {
         const actionType = args?.actionType;
         const payload = args?.payload || '';
 
         if (actionType === 'change_theme') {
-          const validThemes: AppTheme[] = ['neon_rose', 'midnight_velvet', 'cyber_lavender', 'emerald_glow'];
+          const validThemes: AppTheme[] = ['neon_rose', 'midnight_velvet', 'cyber_lavender', 'emerald_glow', 'stark_arc'];
           const matched = validThemes.find((t) => payload.toLowerCase().includes(t.replace('_', '')) || payload.toLowerCase().includes(t));
           const newTheme = matched || 'neon_rose';
           setTheme(newTheme);
@@ -350,9 +374,9 @@ export function useLiveVoice({ setTheme }: UseLiveVoiceOptions) {
       sourceNode.connect(processor);
       processor.connect(inputCtx.destination);
 
-      // 4. Open WebSocket connection
+      // 4. Open WebSocket connection with mode and persona query params
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${window.location.host}/ws/live`;
+      const wsUrl = `${protocol}//${window.location.host}/ws/live?mode=${encodeURIComponent(appMode)}&persona=${encodeURIComponent(emotionalMode)}`;
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 

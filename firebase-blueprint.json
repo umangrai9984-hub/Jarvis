@@ -1,0 +1,57 @@
+{
+  "entities": {
+    "stark_access_keys": {
+      "title": "Stark Access Clearance Key",
+      "description": "Cryptographic and clearance access keys to unlock J.A.R.V.I.S. protocols",
+      "type": "object",
+      "properties": {
+        "key_code": { "type": "string", "description": "The secret clearance key code" },
+        "label": { "type": "string", "description": "Display title or name for this key" },
+        "clearance_level": { "type": "string", "description": "Clearance tier (e.g. Master, Level 10, Guest, VIP)" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "is_active": { "type": "boolean" },
+        "uses_count": { "type": "number" }
+      },
+      "required": ["key_code", "label", "clearance_level", "is_active"]
+    },
+    "access_logs": {
+      "title": "Access Log",
+      "description": "Log entry of clearance attempts to J.A.R.V.I.S.",
+      "type": "object",
+      "properties": {
+        "key_code": { "type": "string" },
+        "status": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "user_agent": { "type": "string" }
+      },
+      "required": ["key_code", "status", "timestamp"]
+    },
+    "jarvis_contacts": {
+      "title": "Jarvis Holographic Contact",
+      "description": "Tactical call matrix contacts for J.A.R.V.I.S.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "title": { "type": "string" },
+        "handle_or_number": { "type": "string" },
+        "category": { "type": "string" },
+        "avatar_url": { "type": "string" },
+        "is_favorite": { "type": "boolean" },
+        "status": { "type": "string" }
+      },
+      "required": ["name", "category"]
+    },
+    "call_logs": {
+      "title": "Call Log",
+      "description": "Log of holographic calls placed via J.A.R.V.I.S.",
+      "type": "object",
+      "properties": {
+        "contact_name": { "type": "string" },
+        "duration_seconds": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "status": { "type": "string" }
+      },
+      "required": ["contact_name", "timestamp", "status"]
+    }
+  }
+}

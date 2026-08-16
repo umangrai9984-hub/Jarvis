@@ -48,17 +48,112 @@ export function pcm16ToAudioBuffer(
   return buffer;
 }
 
-// Web Audio Sound Synthesizer for instant tactile UI feedback
-export function playUiSound(type: 'connect' | 'disconnect' | 'ding' | 'interrupt' | 'action') {
+// Web Audio Sound Synthesizer for instant tactile UI feedback and Stark Holographic FX
+export function playUiSound(
+  type:
+    | 'connect'
+    | 'disconnect'
+    | 'ding'
+    | 'interrupt'
+    | 'action'
+    | 'ringtone'
+    | 'call_connect'
+    | 'call_end'
+    | 'access_granted'
+    | 'access_denied'
+) {
   try {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const now = ctx.currentTime;
+
+    if (type === 'access_granted') {
+      // Epic Stark Arc Reactor Power-Up chord (C4, E4, G4, C5 arpeggio with high harmonic sparkle)
+      const freqs = [261.63, 329.63, 392.0, 523.25, 1046.5];
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = idx === 4 ? 'sine' : 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        gain.gain.setValueAtTime(0.08, now + idx * 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.06 + 0.6);
+        osc.start(now + idx * 0.06);
+        osc.stop(now + idx * 0.06 + 0.6);
+      });
+      return;
+    }
+
+    if (type === 'access_denied') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.setValueAtTime(120, now + 0.12);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+      osc.start(now);
+      osc.stop(now + 0.28);
+      return;
+    }
+
+    if (type === 'ringtone') {
+      // Dual-tone high-tech Stark dial tone
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc1.type = 'sine';
+      osc2.type = 'sine';
+      osc1.frequency.setValueAtTime(440, now);
+      osc2.frequency.setValueAtTime(480, now);
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.6);
+      osc2.stop(now + 0.6);
+      return;
+    }
+
+    if (type === 'call_connect') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, now); // D5
+      osc.frequency.exponentialRampToValueAtTime(1174.66, now + 0.25); // D6
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+      osc.start(now);
+      osc.stop(now + 0.35);
+      return;
+    }
+
+    if (type === 'call_end') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(800, now);
+      osc.frequency.exponentialRampToValueAtTime(200, now + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+      osc.start(now);
+      osc.stop(now + 0.28);
+      return;
+    }
+
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-
     osc.connect(gain);
     gain.connect(ctx.destination);
-
-    const now = ctx.currentTime;
 
     if (type === 'connect') {
       osc.type = 'sine';

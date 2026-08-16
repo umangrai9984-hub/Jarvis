@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { TranscriptItem, AppTheme } from '../types';
-import { MessageSquare, User, Sparkles, Copy, Check } from 'lucide-react';
+import { TranscriptItem, AppTheme, AppMode } from '../types';
+import { MessageSquare, User, Sparkles, Copy, Check, Shield } from 'lucide-react';
+import { THEME_CONFIGS } from '../utils/theme';
 
 interface TranscriptViewProps {
   transcripts: TranscriptItem[];
   currentLiveUserText: string;
   currentLiveModelText: string;
   theme: AppTheme;
+  appMode?: AppMode;
   onClear?: () => void;
 }
 
@@ -15,16 +17,20 @@ export function TranscriptView({
   currentLiveUserText,
   currentLiveModelText,
   theme,
+  appMode = 'umng',
   onClear,
 }: TranscriptViewProps) {
   const [copied, setCopied] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const isJarvis = appMode === 'jarvis';
+  const themeConfig = THEME_CONFIGS[theme] || THEME_CONFIGS.neon_rose;
+  const assistantName = isJarvis ? 'J.A.R.V.I.S.' : 'UMNG';
 
   const handleCopy = () => {
     const text = transcripts
       .slice()
       .reverse()
-      .map((t) => `${t.speaker === 'user' ? 'You' : 'UMNG'}: ${t.text}`)
+      .map((t) => `${t.speaker === 'user' ? 'You' : assistantName}: ${t.text}`)
       .join('\n');
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -34,12 +40,16 @@ export function TranscriptView({
   return (
     <div
       id="live-transcript-panel"
-      className="w-full flex flex-col bg-[#0d0d10] border border-[#ffffff10] rounded-2xl p-5 sm:p-6 h-full max-h-[460px]"
+      className={`w-full flex flex-col border rounded-2xl p-5 sm:p-6 h-full max-h-[460px] transition-all duration-300 ${
+        isJarvis
+          ? 'bg-[#070e18] border-[#00e5ff20]'
+          : 'bg-[#0d0d10] border-[#ffffff10]'
+      }`}
     >
       <div className="flex items-center justify-between pb-3 border-b border-[#ffffff08] mb-3">
         <div className="flex items-center gap-2">
-          <h3 className="text-[10px] uppercase tracking-[0.25em] text-[#555] font-bold">
-            Live Speech Transcript
+          <h3 className={`text-[10px] uppercase tracking-[0.25em] font-bold ${isJarvis ? 'text-[#00e5ff]' : 'text-[#555]'}`}>
+            {isJarvis ? 'Telemetry & Audio Transcripts' : 'Live Speech Transcript'}
           </h3>
         </div>
         <div className="flex items-center gap-2">
@@ -62,10 +72,20 @@ export function TranscriptView({
 
         {/* Real-time streaming model speech */}
         {currentLiveModelText && (
-          <div className="p-3.5 rounded-xl border border-[#ff2d55]/30 bg-[#ff2d55]/10 text-white text-xs animate-pulse">
-            <div className="flex items-center gap-1.5 text-[#ff2d55] font-black uppercase tracking-wider text-[10px] mb-1">
-              <Sparkles className="w-3 h-3" />
-              <span>UMNG (Speaking...)</span>
+          <div
+            className={`p-3.5 rounded-xl border text-white text-xs animate-pulse ${
+              isJarvis
+                ? 'border-[#00e5ff]/40 bg-[#00e5ff]/10'
+                : 'border-[#ff2d55]/30 bg-[#ff2d55]/10'
+            }`}
+          >
+            <div
+              className={`flex items-center gap-1.5 font-black uppercase tracking-wider text-[10px] mb-1 ${
+                isJarvis ? 'text-[#00e5ff]' : 'text-[#ff2d55]'
+              }`}
+            >
+              {isJarvis ? <Shield className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
+              <span>{assistantName} (Speaking...)</span>
             </div>
             <p className="leading-relaxed font-normal text-[#f0f0f0]">{currentLiveModelText}</p>
           </div>
@@ -88,7 +108,9 @@ export function TranscriptView({
             key={item.id}
             className={`p-3.5 rounded-xl border text-xs transition-all ${
               item.speaker === 'assistant'
-                ? 'border-[#ff2d55]/20 bg-[#ff2d55]/5 text-[#e0e0e0]'
+                ? isJarvis
+                  ? 'border-[#00e5ff]/25 bg-[#00e5ff]/5 text-[#e0e0e0]'
+                  : 'border-[#ff2d55]/20 bg-[#ff2d55]/5 text-[#e0e0e0]'
                 : 'border-[#ffffff08] bg-[#16161c] text-[#ccc]'
             }`}
           >
@@ -96,8 +118,12 @@ export function TranscriptView({
               <div className="flex items-center gap-1.5 font-bold">
                 {item.speaker === 'assistant' ? (
                   <>
-                    <span className="text-[10px] text-[#ff2d55] font-black uppercase tracking-wider">
-                      UMNG
+                    <span
+                      className={`text-[10px] font-black uppercase tracking-wider ${
+                        isJarvis ? 'text-[#00e5ff]' : 'text-[#ff2d55]'
+                      }`}
+                    >
+                      {assistantName}
                     </span>
                   </>
                 ) : (
@@ -119,7 +145,9 @@ export function TranscriptView({
         {transcripts.length === 0 && !currentLiveUserText && !currentLiveModelText && (
           <div className="flex flex-col items-center justify-center py-10 text-center text-[#555] text-xs">
             <MessageSquare className="w-8 h-8 stroke-[1.5] mb-2 opacity-30 text-[#888]" />
-            <p className="font-medium text-[#888]">Continuous Audio Link Active</p>
+            <p className="font-medium text-[#888]">
+              {isJarvis ? 'Tactical Audio Protocol Active' : 'Continuous Audio Link Active'}
+            </p>
             <p className="text-[11px] text-[#555] mt-1 max-w-xs">
               Live speech transcripts and captions stream here automatically during conversation.
             </p>
@@ -129,4 +157,5 @@ export function TranscriptView({
     </div>
   );
 }
+
 

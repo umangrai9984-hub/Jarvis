@@ -1,6 +1,6 @@
 {
-  "name": "UMNG Assistant",
-  "description": "Real-time, voice-to-voice AI assistant with a witty, confident, and sassy persona powered by Gemini Live API.",
+  "name": "UMNG Assistant & J.A.R.V.I.S.",
+  "description": "Real-time, bidirectional voice-to-voice AI assistant with customizable Emotional Intelligence personas (Sassy, Supportive, Professional) and Stark J.A.R.V.I.S. Mode with Holographic Calling, Firebase Key Clearance, and Umang Rai creator integration.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

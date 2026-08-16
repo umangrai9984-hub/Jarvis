@@ -1,0 +1,35 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Stark Access Clearance Keys
+    match /stark_access_keys/{keyId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Access Logs
+    match /access_logs/{logId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false;
+    }
+
+    // Jarvis Holographic Contacts
+    match /jarvis_contacts/{contactId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Jarvis Call Logs
+    match /call_logs/{callId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
